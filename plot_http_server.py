@@ -17,9 +17,11 @@ PORT = 2020
 
 state = {}
 
-# https://www.unixtimestamp.com/
 start_time_re = re.compile(r'/gen(/([0-9]+))?')
 
+# 192.168.1.110:2020 - list plots
+# 192.168.1.110:2020/gen - generate plot for last 24 hours
+# 192.168.1.110:2020/gen/1723267912 - generate plot for 8/10/24 (see https://www.unixtimestamp.com/)
 
 class MySimpleHTTPRequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -38,7 +40,7 @@ class MySimpleHTTPRequestHandler(SimpleHTTPRequestHandler):
             if output_path == '':
                 self.wfile.write(b'No rolls found')
             else:
-                self.wfile.write(f'Generated {output_path}'.encode('utf-8'))
+                self.wfile.write(f'Generated <a href="{output_path.name}">{output_path}</a>'.encode('utf-8'))
         else:
             return super().do_GET()
 
@@ -51,7 +53,7 @@ def generate_plot(output_dir, start_time, end_time):
     if len(df) == 0:
         return ''
 
-    timestamps = (df["timestamp"] - df["timestamp"].min()) / 60 / 60
+    timestamps = (df["timestamp"] - df["timestamp"].min()) / 60
     timestr = datetime.fromtimestamp(
         df["timestamp"].min()).strftime("%Y-%m-%d")
 
@@ -68,7 +70,6 @@ def generate_plot(output_dir, start_time, end_time):
     )
 
     output_path = output_dir / f"rolls_{timestr}.html"
-
     fig.write_html(output_path)
     return output_path
 
