@@ -57,7 +57,7 @@ def generate_plot(output_dir, start_time, end_time):
     timestr = datetime.fromtimestamp(
         df["timestamp"].min()).strftime("%Y-%m-%d")
 
-    fig = px.bar(
+    fig = px.scatter(
         df,
         x=timestamps,
         y="value",
